@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+void main() {
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false, // Elimina el banner de debug
+    home: AddCardPage(),
+  ));
+}
 
 class AddCardPage extends StatefulWidget {
   const AddCardPage({super.key});
@@ -13,7 +21,6 @@ class _AddCardPageState extends State<AddCardPage> {
   final TextEditingController _cardNumberController = TextEditingController();
   final TextEditingController _bankNameController = TextEditingController();
   final TextEditingController _balanceController = TextEditingController();
-  String _selectedCurrency = 'USD';
 
   @override
   void dispose() {
@@ -28,68 +35,96 @@ class _AddCardPageState extends State<AddCardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Card'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('10:21', style: TextStyle(color: Colors.black)),
+            const Spacer(),
+            const Icon(Icons.signal_cellular_alt,
+                size: 18, color: Colors.black),
+            const SizedBox(width: 8),
+            const Icon(Icons.wifi, size: 18, color: Colors.black),
+            const SizedBox(width: 8),
+            const Icon(Icons.battery_full, size: 18, color: Colors.black),
+          ],
         ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${TimeOfDay.now().hour}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+        child: Column(
+          children: [
+            // Botón de retroceso
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: () => Navigator.pop(context),
               ),
-              const SizedBox(height: 20),
-              _buildTextField('Card name', _cardNameController),
-              const SizedBox(height: 16),
-              _buildTextField('Card Number', _cardNumberController,
-                  isCardNumber: true),
-              const SizedBox(height: 16),
-              _buildTextField('Bank Name', _bankNameController),
-              const SizedBox(height: 16),
-              _buildTextField('Available Balance', _balanceController,
-                  keyboardType: TextInputType.number),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedCurrency,
-                decoration: const InputDecoration(
-                  labelText: 'Currency',
-                  border: OutlineInputBorder(),
-                ),
-                items: ['USD', 'EUR', 'GBP', 'JPY', 'MXN']
-                    .map((currency) => DropdownMenuItem(
-                          value: currency,
-                          child: Text(currency),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCurrency = value!;
-                  });
-                },
+            ),
+
+            const SizedBox(height: 4),
+
+            // Título "Add Card"
+            const Text(
+              'Add Card',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Formulario compacto
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  _buildTextField('Card name', _cardNameController),
+                  const SizedBox(height: 8),
+                  _buildTextField('Card Number', _cardNumberController),
+                  const SizedBox(height: 8),
+                  _buildTextField('Bank Name', _bankNameController),
+                  const SizedBox(height: 8),
+                  _buildTextField('Available Balance', _balanceController,
+                      keyboardType: TextInputType.number),
+                  const SizedBox(height: 8),
+                  _buildCurrencyField(),
+                  const SizedBox(height: 16),
+
+                  // Botón "Add" alineado con los campos
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      onPressed: _submitForm,
+                      child: const Text('Add'),
+                    ),
                   ),
-                  onPressed: _submitForm,
-                  child: const Text('Add'),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        height: 4,
+        margin: const EdgeInsets.symmetric(horizontal: 100),
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(2),
         ),
       ),
     );
@@ -98,15 +133,16 @@ class _AddCardPageState extends State<AddCardPage> {
   Widget _buildTextField(
     String label,
     TextEditingController controller, {
-    bool isCardNumber = false,
     TextInputType keyboardType = TextInputType.text,
   }) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: const TextStyle(color: Colors.grey),
         border: const OutlineInputBorder(),
-        suffixIcon: isCardNumber ? const Icon(Icons.credit_card) : null,
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       ),
       keyboardType: keyboardType,
       validator: (value) {
@@ -114,6 +150,21 @@ class _AddCardPageState extends State<AddCardPage> {
           return 'Please enter $label';
         }
         return null;
+      },
+    );
+  }
+
+  Widget _buildCurrencyField() {
+    return TextFormField(
+      decoration: const InputDecoration(
+        labelText: 'Currency',
+        labelStyle: TextStyle(color: Colors.grey),
+        border: OutlineInputBorder(),
+        contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      ),
+      readOnly: true, // Hace que el campo sea de solo lectura
+      onTap: () {
+        // Aquí podrías agregar la lógica para seleccionar moneda si es necesario
       },
     );
   }
