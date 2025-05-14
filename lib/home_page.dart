@@ -1,20 +1,86 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const HomePage(),
+    );
+  }
+}
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ));
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home Page'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('10:20', style: TextStyle(color: Colors.black)),
+            const Spacer(),
+            const Icon(Icons.signal_cellular_alt,
+                size: 18, color: Colors.black),
+            const SizedBox(width: 8),
+            const Icon(Icons.wifi, size: 18, color: Colors.black),
+            const SizedBox(width: 8),
+            const Icon(Icons.battery_full, size: 18, color: Colors.black),
+          ],
+        ),
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Título "Home Page" centrado con ícono + a la derecha
+            Stack(
+              children: [
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 16.0),
+                    child: Text(
+                      'Home Page',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.add, color: Colors.grey, size: 24),
+                    onPressed: () {
+                      // Acción al presionar el +
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            // Imagen de la tarjeta
             GestureDetector(
               onTap: () {
                 Navigator.pushNamed(context, '/cardDetail');
@@ -25,76 +91,50 @@ class HomePage extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 30),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.black87, Colors.black],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'MasterCard',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        '•••• •••• •••• 4748',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          letterSpacing: 2.0,
-                        ),
-                      ),
-                      const Spacer(),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: Text(
-                          '23,000 USD',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  image: const DecorationImage(
+                    image: AssetImage('assets/card1.png'),
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
             ),
-            const Text(
-              'Last Transactions',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+
+            // Título "Last Transactions" en gris
+            const Padding(
+              padding: EdgeInsets.only(left: 8.0),
+              child: Text(
+                'Last Transactions',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                ),
               ),
             ),
             const SizedBox(height: 10),
+
+            // Lista de transacciones
             Column(
               children: [
-                _buildTransactionItem('Shopping', '-1000 USD', Colors.red),
-                _buildTransactionItem('Salary', '+1000 USD', Colors.green),
-                _buildTransactionItem('Receive', '+200 USD', Colors.green),
+                _buildTransactionItem(
+                    'Shopping', '-1000us', Icons.arrow_downward, Colors.red),
+                const SizedBox(height: 8),
+                _buildTransactionItem(
+                    'Salary', '+1000us', Icons.arrow_upward, Colors.green),
+                const SizedBox(height: 8),
+                _buildTransactionItem(
+                    'Receive', '+200us', Icons.arrow_upward, Colors.green),
               ],
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        height: 4,
+        margin: const EdgeInsets.symmetric(horizontal: 100),
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(2),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -106,25 +146,45 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildTransactionItem(String title, String amount, Color color) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16),
-          ),
-          Text(
-            amount,
-            style: TextStyle(
-              fontSize: 16,
-              color: color,
-              fontWeight: FontWeight.bold,
+  Widget _buildTransactionItem(
+      String title, String amount, IconData icon, Color iconColor) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.grey.withOpacity(0.3),
+          width: 1.5,
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 24,
+              color: iconColor,
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            Text(
+              amount,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
