@@ -1,93 +1,88 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CardDetailPage extends StatelessWidget {
   const CardDetailPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final String currentTime =
-        '${TimeOfDay.now().hour}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}';
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Card Details'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '10:21',
+              style: const TextStyle(color: Colors.black),
+            ),
+            const Spacer(),
+            const Icon(Icons.signal_cellular_alt,
+                size: 18, color: Colors.black),
+            const SizedBox(width: 8),
+            const Icon(Icons.wifi, size: 18, color: Colors.black),
+            const SizedBox(width: 8),
+            const Icon(Icons.battery_full, size: 18, color: Colors.black),
+          ],
         ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(30.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              currentTime,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 40),
-            const Center(
-              child: Text(
-                'Card View',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+            // Fila con título e iconos
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios,
+                      color: Colors.grey), // Icono < gris
+                  onPressed: () => Navigator.pop(context),
                 ),
-              ),
+                const Text(
+                  'Card View',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete,
+                      color: Colors.grey), // Icono eliminar gris
+                  onPressed: () {
+                    // Acción para eliminar la tarjeta
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 30),
+            // Imagen de la tarjeta
             Container(
-              height: 220,
               width: double.infinity,
+              height: 200,
+              margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Colors.black87, Colors.black],
+                borderRadius: BorderRadius.circular(16),
+                image: const DecorationImage(
+                  image: AssetImage('assets/card1.png'),
+                  fit: BoxFit.cover,
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(25.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'MasterCard',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '5 5 1 2 •••• •••• 4 7 4 8',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        letterSpacing: 2.0,
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Text(
-                        '23,000 USD',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
+            ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        height: 4,
+        margin: const EdgeInsets.symmetric(horizontal: 100),
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(2),
         ),
       ),
     );
